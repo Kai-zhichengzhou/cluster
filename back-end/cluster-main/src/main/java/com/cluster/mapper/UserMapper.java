@@ -15,6 +15,8 @@ public interface UserMapper {
 
     User getUserByUsername(String username);
 
+    User searchUserInfo(String username);
+
     Integer getUserRank(Integer id);
     void registerUser(User user);
 

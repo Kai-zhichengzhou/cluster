@@ -13,6 +13,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -109,6 +110,16 @@ public class UserServiceImpl implements UserService {
         return userMapper.getUserByUsername(username);
     }
 
+    @Override
+    public User searchUserInfo(String username) {
+        if(username == null)
+        {
+            throw new IllegalArgumentException("搜索的用户名不能为空");
+        }
+        User user = userMapper.searchUserInfo(username);
+        return user;
+    }
+
     /**
      * 注册用户的业务逻辑：
      * 1.存储用户信息
@@ -130,13 +141,25 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public void updateUser(User user) {
+    public void updateUser(Integer id,User user){
         if(user == null)
         {
             throw new IllegalArgumentException("你当前的修改信息不能为空");
         }
+        User currUser = getCurrentUser();
+        if(!id.equals(currUser.getId()))
+        {
+            throw new AccessDeniedException("你没有权限修改他人的信息!");
+        }
         userMapper.updateUser(user);
 
+    }
+
+    @Override
+    public User getCurrentUser()
+    {
+        User currUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userMapper.getUserById(currUser.getId());
     }
 
     /**

@@ -12,6 +12,10 @@
         select id,`name`, gender, signature, `rank`, avatarpath from users
     </select>
 
+    <select id="searchUserInfo" resultType="User">
+        select id, `name`, gender, signature, `rank`, avatarpath from users where `name` = #{username}
+    </select>
+
     <select id="getUserByUsername" resultType="User">
         select id, username, `name`, password, email, phone, datejoined, gender, signature,`rank`,avatarpath from users where username =#{username}
     </select>

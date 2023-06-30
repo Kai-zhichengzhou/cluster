@@ -22,9 +22,13 @@ public interface UserService {
 
     User getUserByUsername(String username);
 
+    User getCurrentUser();
+
+    User searchUserInfo(String username);
+
     void registerUser(User user);
 
-    void updateUser(User user);
+    void updateUser(Integer id, User user);
 
     void addRankPoint(@Param("id") Integer id, @Param("rank") Integer rank);
 

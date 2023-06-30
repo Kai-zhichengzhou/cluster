@@ -21,7 +21,7 @@
         update cluster set clustername = #{clusterName},
                            memberCOunt = #{memberCount},
                            maxMembers = #{maxMembers},
-                           clusterRank = #{clusterRank} where clusterid = #{clusterId}
+                           clusterRank = #{clusterRank} where clusterId = #{clusterId}
     </update>
 
     <delete id="deleteClusterById">
