@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 //允许对/login, /logout不需要任何访问限制
-                .antMatchers("/registration/signup").permitAll()
+                .antMatchers("/registration/signup", "/login").permitAll()
 //                .antMatchers("/admin/**").hasRole("admin")
 //                .anyRequest().hasRole("user")
                 .anyRequest().authenticated()

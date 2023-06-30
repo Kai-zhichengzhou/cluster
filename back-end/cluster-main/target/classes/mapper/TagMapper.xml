@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cluster.mapper.TagMapper">
+    <select id="getTagByName" resultType="Tag">
+        select * from Tag where  tagName = #{tagName}
+  </select>
+    <select id="getAllTags" resultType="Tag">
+        select * from Tag
+    </select>
+    <insert id="insert">
+        insert into tag values(null,#{tagName})
+    </insert>
+
+    <delete id="deleteByName">
+        delete from tag where tagName = #{tagName}
+    </delete>
+
+</mapper>

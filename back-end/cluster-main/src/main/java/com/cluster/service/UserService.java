@@ -18,6 +18,8 @@ public interface UserService {
 
     List<User> getAllUsers();
 
+    Integer getUserRank(Integer id);
+
     User getUserByUsername(String username);
 
     void registerUser(User user);

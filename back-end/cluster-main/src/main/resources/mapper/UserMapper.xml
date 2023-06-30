@@ -16,6 +16,10 @@
         select id, username, `name`, password, email, phone, datejoined, gender, signature,`rank`,avatarpath from users where username =#{username}
     </select>
 
+    <select id="getUserRank" resultType="java.lang.Integer">
+        select `rank` from users where id = #{id}
+    </select>
+
     <insert id="registerUser">
         insert INTO users VALUES(null, #{username}, #{password}, #{enabled}, #{name}, #{email},
                                 #{phone}, #{dateJoined}, #{gender}, #{signature}, #{rank}, #{avatarPath})
@@ -30,6 +34,8 @@
     <update id="addRankPoint">
         update users set `rank` = #{rank} where id = #{id}
     </update>
+
+
 
     <delete id="deleteUser">
         delete from users where id = #{id}

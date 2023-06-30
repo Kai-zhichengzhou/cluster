@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cluster.mapper.ClusterMapper">
+    <select id="getClusterById" resultType="Cluster">
+        select * from cluster where clusterid = #{clusterID}
+  </select>
+    <select id="getAllClusters" resultType="Cluster">
+        select * from cluster
+    </select>
+
+    <insert id="insert">
+        insert into cluster values(null, #{clusterName}, #{founderID},
+                                   #{category}, #{memberCount},
+                                   #{maxMembers},#{createdDate},
+                                   #{clusterRank})
+    </insert>
+
+    <update id="update">
+        update cluster set clustername = #{clusterName},
+                           memberCOunt = #{memberCount},
+                           maxMembers = #{maxMembers},
+                           clusterRank = #{clusterRank} where clusterid = #{clusterId}
+    </update>
+
+    <delete id="deleteClusterById">
+        delete from cluster where clusterId = #{id}
+    </delete>
+</mapper>

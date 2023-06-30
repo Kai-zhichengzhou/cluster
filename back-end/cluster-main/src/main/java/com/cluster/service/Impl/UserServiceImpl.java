@@ -1,6 +1,7 @@
 package com.cluster.service.Impl;
 
 import com.cluster.config.jwt.JwtUtil;
+import com.cluster.exception.RecordNotFoundException;
 import com.cluster.mapper.RoleMapper;
 import com.cluster.mapper.UserMapper;
 import com.cluster.pojo.ApiResponse;
@@ -81,12 +82,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Integer id) {
-        return null;
+
+        return userMapper.getUserById(id);
     }
 
     @Override
     public List<User> getAllUsers() {
-        return null;
+
+        return userMapper.getAllUsers();
+    }
+
+
+    /**
+     * 获取当前用户的等级积分
+     * @param id
+     * @return
+     */
+    @Override
+    public Integer getUserRank(Integer id) {
+        return userMapper.getUserRank(id);
     }
 
     @Override
@@ -109,18 +123,49 @@ public class UserServiceImpl implements UserService {
         userMapper.insertUserRole(id, user.getRole().getId());
     }
 
+
+    /**
+     * 修改用户信息
+     * @param user
+     */
     @Override
+    @Transactional
     public void updateUser(User user) {
+        if(user == null)
+        {
+            throw new IllegalArgumentException("你当前的修改信息不能为空");
+        }
+        userMapper.updateUser(user);
 
     }
 
+    /**
+     * 增加用户的等级积分
+     * @param id
+     * @param pointsToAdd
+     */
     @Override
-    public void addRankPoint(Integer id, Integer rank) {
+    @Transactional
+    public void addRankPoint(Integer id, Integer pointsToAdd) {
+
+        Integer currRank = getUserRank(id);
+        userMapper.addRankPoint(id, currRank + pointsToAdd);
 
     }
 
+
+    /**
+     * 删除当前用户
+     * @param id
+     */
     @Override
+    @Transactional
     public void deleteUser(Integer id) {
+        int rowAffected = userMapper.deleteUser(id);
+        if(rowAffected == 0)
+        {
+            throw new RecordNotFoundException("当前要删除的用户不存在!");
+        }
 
     }
 

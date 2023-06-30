@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cluster.mapper.EventMapper">
+    <select id="getEventById" resultType="Event">
+        select * from Event where id = #{id}
+    </select>
+
+    <select id="getAllEvents" resultType="Event">
+        select * from Event
+    </select>
+
+    <insert id="insert">
+        insert into event values(null, #{clusterId}, #{name}, #{description},
+                                 #{beginDate}, #{endDate}, #{finished}, 0)
+    </insert>
+
+    <update id="update">
+        update event set `name`=#{name}, description = #{description},
+                         beginDate=#{beginDate}, endDate=#{endDate} where id = #{id}
+    </update>
+
+    <delete id="deleteEventById">
+        delete from event where id = #{id}
+    </delete>
+
+</mapper>

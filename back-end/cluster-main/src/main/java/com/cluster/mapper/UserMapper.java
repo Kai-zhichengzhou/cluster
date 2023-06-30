@@ -15,6 +15,7 @@ public interface UserMapper {
 
     User getUserByUsername(String username);
 
+    Integer getUserRank(Integer id);
     void registerUser(User user);
 
     void insertUserRole(@Param("uid") Integer uid, @Param("rid") Integer rid);
@@ -23,7 +24,7 @@ public interface UserMapper {
 
     void addRankPoint(@Param("id") Integer id, @Param("rank") Integer rank);
 
-    void deleteUser(Integer id);
+    Integer deleteUser(Integer id);
 
     Role getRoleByUserId(Integer id);
 
