@@ -9,12 +9,16 @@
     <select id="getAllTags" resultType="Tag">
         select * from Tag
     </select>
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into tag values(null,#{tagName})
     </insert>
 
     <delete id="deleteByName">
         delete from tag where tagName = #{tagName}
     </delete>
+
+    <insert id="updateClusterTag">
+        insert into cluster_tag values(null, #{cid}, #{tid})
+    </insert>
 
 </mapper>

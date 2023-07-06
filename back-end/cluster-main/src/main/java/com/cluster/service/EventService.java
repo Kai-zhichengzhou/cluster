@@ -1,7 +1,9 @@
 package com.cluster.service;
 
 import com.cluster.pojo.Event;
+import com.github.pagehelper.PageInfo;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface EventService {
@@ -11,7 +13,14 @@ public interface EventService {
      * @param id
      * @return
      */
-    Event getEventById(Integer id);
+    Event getEventInfoById(Integer id);
+
+    /**
+     * 获取当前cluster注册的所有事件
+     * @param cid
+     * @return
+     */
+    List<Event> getClusterEvents(Integer cid);
 
     /**
      * 返回所有事件
@@ -23,7 +32,7 @@ public interface EventService {
      * 创建事件
      * @param event
      */
-    void createEvent(Event event);
+    void createEvent(Integer cid, Event event) throws SQLException;
 
     /**
      * 更新事件
@@ -36,6 +45,29 @@ public interface EventService {
      * @param id
      */
     void deleteEventById(Integer id);
+
+    /**
+     * 加入报名者
+     * @param eid
+     * @param eid
+     */
+    void addEventMember(Integer eid);
+
+    /**
+     * 成员退出
+     * @param eid
+     * @param eid
+     */
+    void cancelEventMember(Integer eid);
+
+    /**
+     * 获取当前用户报名过的所有事件
+     * @return
+     */
+    List<Event> viewMyEvents();
+
+
+    PageInfo<Event> getEventByPage(Integer page, Integer size);
 
 
 

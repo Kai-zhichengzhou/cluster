@@ -3,6 +3,7 @@ package com.cluster.service;
 import com.cluster.pojo.ApiResponse;
 import com.cluster.pojo.Role;
 import com.cluster.pojo.User;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ public interface UserService {
 
     Role getRoleByUserId(Integer id);
 
-
     ApiResponse login(String username, String password, String code, HttpServletRequest request);
+
+    PageInfo<User> getUserByPage(Integer page, Integer size);
 }

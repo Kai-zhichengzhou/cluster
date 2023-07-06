@@ -1,6 +1,7 @@
 package com.cluster.mapper;
 
 import com.cluster.pojo.Tag;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -31,6 +32,8 @@ public interface TagMapper{
      * @param tagName
      */
     Integer deleteByName(String tagName);
+
+    void updateClusterTag(@Param("cid") Integer cid, @Param("tid") Integer tid);
 
 
 

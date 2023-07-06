@@ -7,13 +7,17 @@
         select * from Event where id = #{id}
     </select>
 
+
+    <select id="getClusterEvents" resultType="Event">
+        select * from Event where clusterId = #{cid}
+    </select>
     <select id="getAllEvents" resultType="Event">
         select * from Event
     </select>
 
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into event values(null, #{clusterId}, #{name}, #{description},
-                                 #{beginDate}, #{endDate}, #{finished}, 0)
+                                 #{beginDate}, #{endDate}, #{finished}, 1)
     </insert>
 
     <update id="update">
@@ -24,5 +28,24 @@
     <delete id="deleteEventById">
         delete from event where id = #{id}
     </delete>
+
+
+    <insert id="addEventMember">
+        insert into event_user values(null, #{eid}, #{uid})
+    </insert>
+
+    <delete id="cancelEventMember">
+        delete from event_user where eid = #{eid} and uid = #{uid}
+    </delete>
+    <select id="findEventIdByUser" resultType="java.lang.Integer">
+        select eid from event_user where uid = #{uid}
+    </select>
+
+    <select id="viewMyEvents" resultType="Event">
+        select * from event where id in
+        <foreach item="eids" collection="list" open="(" separator="," close=")">
+            #{eids}
+        </foreach>
+    </select>
 
 </mapper>

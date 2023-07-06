@@ -8,6 +8,8 @@ import com.cluster.pojo.ApiResponse;
 import com.cluster.pojo.Role;
 import com.cluster.pojo.User;
 import com.cluster.service.UserService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,5 +198,17 @@ public class UserServiceImpl implements UserService {
     public Role getRoleByUserId(Integer id) {
 
         return userMapper.getRoleByUserId(id);
+    }
+
+    @Override
+    public PageInfo<User> getUserByPage(Integer page, Integer size) {
+
+        PageHelper.startPage(page, size);
+
+        List<User> users = userMapper.getAllUsers();
+
+        PageInfo<User> pageInfo = new PageInfo<>(users);
+
+        return pageInfo;
     }
 }

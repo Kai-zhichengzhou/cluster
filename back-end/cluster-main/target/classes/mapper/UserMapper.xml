@@ -4,12 +4,59 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cluster.mapper.UserMapper">
 
-    <select id="getUserById" resultType="User">
-        select id,username,`name`, email, phone, datejoined, gender, signature, `rank`, avatarpath from users where id = #{id}
-    </select>
+    <select id="getUserById" resultMap="MyProfileMap">
+        select u.id, u.`name`, u.username, u.email, u.phone, u.datejoined, u.gender, u.signature,u.enabled, u.`rank`, u.avatarpath,
+            roleTable.`name` as role_name, roleTable.nameZh from users u
+            left join user_role r on u.id = r.uid
+            left join roles roleTable on r.rid = roleTable.id
+            where u.id = #{id}
 
-    <select id="getAllUsers" resultType="User">
-        select id,`name`, gender, signature, `rank`, avatarpath from users
+    </select>
+    <resultMap id="MyProfileMap" type="User">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="dateJoined" column="dateJoined"/>
+        <result property="gender" column="gender"/>
+        <result property="signature" column="signature"/>
+        <result property="enabled" column="enabled"/>
+        <result property="rank" column="rank"/>
+        <result property="avatarPath" column="avatarPath"/>
+        <association property="role" javaType="Role">
+            <result property="name" column="role_name"/>
+            <result property="nameZh" column="nameZh"/>
+        </association>
+    </resultMap>
+
+    <select id="getAllUsers" resultMap="SimpleProfileResultMap">
+        select u.id, u.`name`,u.gender, u.signature,u.enabled, u.`rank`, u.avatarpath,
+               roleTable.`name` as role_name, roleTable.nameZh from users u
+                left join user_role r on u.id = r.uid
+                left join roles roleTable on r.rid = roleTable.id
+    </select>
+    
+    <resultMap id="SimpleProfileResultMap" type="User">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="gender" column="gender"/>
+        <result property="signature" column="signature"/>
+        <result property="enabled" column="enabled"/>
+        <result property="rank" column="rank"/>
+        <result property="avatarPath" column="avatarPath"/>
+        <association property="role" javaType="Role">
+            <result property="name" column="role_name"/>
+            <result property="nameZh" column="nameZh"/>
+        </association>
+    </resultMap>
+
+
+    <select id="searchUserInfo" resultMap="SimpleProfileResultMap">
+        select u.id, u.`name`,u.gender, u.signature,u.enabled, u.`rank`, u.avatarpath,
+               roleTable.`name` as role_name, roleTable.nameZh from users u
+            left join user_role r on u.id = r.uid
+            left join roles roleTable on r.rid = roleTable.id
+            where u.`name` like CONCAT('%' , #{name} ,'%')
     </select>
 
     <select id="getUserByUsername" resultType="User">
@@ -26,8 +73,8 @@
     </insert>
 
     <update id="updateUser">
-        update users set `name` = #{name},password = #{password}, email = #{email}, phone = #{phone},
-                        gender = #{gender}, signature = #{signature}, avatarpath = #{avatarpath}
+        update users set `name` = #{name}, phone = #{phone},
+                        gender = #{gender}, signature = #{signature}, avatarpath = #{avatarPath}
                         where id = #{id}
     </update>
 

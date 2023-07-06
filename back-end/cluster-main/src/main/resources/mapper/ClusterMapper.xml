@@ -10,16 +10,16 @@
         select * from cluster
     </select>
 
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="clusterId">
         insert into cluster values(null, #{clusterName}, #{founderID},
-                                   #{category}, #{memberCount},
+                                   #{category}, 1,
                                    #{maxMembers},#{createdDate},
                                    #{clusterRank})
     </insert>
 
     <update id="update">
         update cluster set clustername = #{clusterName},
-                           memberCOunt = #{memberCount},
+                           memberCount = #{memberCount},
                            maxMembers = #{maxMembers},
                            clusterRank = #{clusterRank} where clusterId = #{clusterId}
     </update>
@@ -27,4 +27,34 @@
     <delete id="deleteClusterById">
         delete from cluster where clusterId = #{id}
     </delete>
+
+    <insert id="joinMember">
+        insert into cluster_user values(null, #{cid}, #{uid})
+    </insert>
+
+    <delete id="deleteMember">
+        delete from cluster_user where cid = #{cid} and uid = #{uid}
+    </delete>
+
+    <update id="updateClusterMemberCount">
+        update cluster set memberCount = #{memberCount} where clusterId = #{clusterId}
+    </update>
+
+    <update id="updateClusterMaxMember">
+        update cluster set maxMembers = #{maxMembers} where clusterId = #{clusterId}
+    </update>
+
+    <select id="authenticateMember" resultType="java.util.HashMap">
+        select * from cluster_user where cid = #{cid} and uid = #{uid}
+    </select>
+
+    <select id="findClusterIdByUser" resultType="java.lang.Integer">
+        select cid from cluster_user where uid = #{uid}
+    </select>
+    <select id="viewMyClusters" resultType="Cluster">
+        select * from cluster where clusterId in
+        <foreach item="clusterId" collection="list" open="(" separator="," close=")">
+            #{clusterId}
+        </foreach>
+    </select>
 </mapper>
