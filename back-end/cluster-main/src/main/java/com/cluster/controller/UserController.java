@@ -94,7 +94,7 @@ public class UserController {
 
 
     @ApiOperation(value = "获取当前页的所有用户")
-    @GetMapping(value = "/")
+    @GetMapping(value = "/page")
     public ApiResponse getUserByPage(@RequestParam("page")Integer page)
     {
         int pageSize = 8;

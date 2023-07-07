@@ -2,19 +2,25 @@ package com.cluster.service.Impl;
 
 import com.cluster.config.jwt.JwtUtil;
 import com.cluster.exception.RecordNotFoundException;
+import com.cluster.mapper.MailLogMapper;
 import com.cluster.mapper.RoleMapper;
 import com.cluster.mapper.UserMapper;
 import com.cluster.pojo.ApiResponse;
+import com.cluster.pojo.MailLog;
 import com.cluster.pojo.Role;
 import com.cluster.pojo.User;
 import com.cluster.service.UserService;
+import com.cluster.utils.MailConstants;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,9 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -40,6 +45,9 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
     private JwtUtil jwtUtil;
     @Value("${jwt.tokenHead}")
     private String tokenHead;
@@ -49,6 +57,11 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private MailLogMapper mailLogMapper;
 
 
 
@@ -85,8 +98,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Integer id) {
-
-        return userMapper.getUserById(id);
+        User user = (User)redisTemplate.opsForValue().get("user:"+id);
+        if(user == null)
+        {
+            //说明redis缓存中没有
+            System.out.println("redis缓存没有命中");
+            user = userMapper.getUserById(id);
+            redisTemplate.opsForValue().set("user:"+id,user);
+        }
+        return user;
     }
 
     @Override
@@ -130,10 +150,39 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public void registerUser(User user) {
+    public boolean registerUser(User user) {
+
         userMapper.registerUser(user);
-        Integer id = userMapper.getUserByUsername(user.getUsername()).getId();
-        userMapper.insertUserRole(id, user.getRole().getId());
+        Integer id = user.getId();
+        if(id != null) //说明插入成功
+        {
+            userMapper.insertUserRole(id, user.getRole().getId());
+            User currUser = userMapper.getUserById(id);
+            //通过数据库来记录现在发送的消息
+            //生成要发送的消息
+            //生成一个唯一的messageId
+            String msgId = UUID.randomUUID().toString();
+            MailLog mailLog = new MailLog();
+            mailLog.setMsgId(msgId);
+            mailLog.setUid(id);
+            mailLog.setStatus(0);
+            mailLog.setRouteKey(MailConstants.MAIL_ROUTING_KEY_NAME);
+            mailLog.setExchange(MailConstants.MAIL_EXCHANGE_NAME);
+            mailLog.setCount(0);
+            mailLog.setTryTime(LocalDateTime.now().plusMinutes(MailConstants.MSG_TIMEOUT));
+            mailLog.setCreateTime(LocalDateTime.now());
+            mailLog.setUpdateTime(LocalDateTime.now());
+            //生成成功消息之后将这条mail log添加到持久层
+            mailLogMapper.insert(mailLog);
+
+            //通过rabbitmq框架发送消息
+            //当前server作为消息的producer
+            rabbitTemplate.convertAndSend(MailConstants.MAIL_EXCHANGE_NAME,MailConstants.MAIL_ROUTING_KEY_NAME,
+                    currUser, new CorrelationData(msgId));
+
+            return true;
+        }
+        return false;
     }
 
 
@@ -154,14 +203,21 @@ public class UserServiceImpl implements UserService {
             throw new AccessDeniedException("你没有权限修改他人的信息!");
         }
         userMapper.updateUser(user);
-
+        System.out.println("数据修改，所以删除redis中的键值对");
+        redisTemplate.delete("user:" + id);
     }
 
     @Override
     public User getCurrentUser()
     {
         User currUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userMapper.getUserById(currUser.getId());
+        User user = (User) redisTemplate.opsForValue().get("user:"+currUser.getId());
+        if(user == null)
+        {
+            user = userMapper.getUserById(currUser.getId());
+            redisTemplate.opsForValue().set("user:" + currUser.getId(), user);
+        }
+        return  user;
     }
 
     /**
@@ -191,13 +247,20 @@ public class UserServiceImpl implements UserService {
         {
             throw new RecordNotFoundException("当前要删除的用户不存在!");
         }
+        redisTemplate.delete("user:" + id);
 
     }
 
     @Override
     public Role getRoleByUserId(Integer id) {
 
-        return userMapper.getRoleByUserId(id);
+        User user = (User) redisTemplate.opsForValue().get("user:" + id);
+        if(user == null)
+        {
+            return userMapper.getRoleByUserId(id);
+        }
+        return user.getRole();
+
     }
 
     @Override
@@ -208,6 +271,12 @@ public class UserServiceImpl implements UserService {
         List<User> users = userMapper.getAllUsers();
 
         PageInfo<User> pageInfo = new PageInfo<>(users);
+
+        //处理分页逻辑
+        //如果当前要查询的页面已经超出了总数据量，返回空list
+        if (page > pageInfo.getPages() && pageInfo.getPages() != 0) {
+            pageInfo.setList(Collections.emptyList());
+        }
 
         return pageInfo;
     }

@@ -5,6 +5,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>cluster-main</module>
+        <module>cluster-mail</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

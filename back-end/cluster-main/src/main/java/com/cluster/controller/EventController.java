@@ -116,7 +116,8 @@ public class EventController {
 
     }
 
-    @GetMapping(value = "/event/list")
+    @ApiOperation(value = "分页查找events")
+    @GetMapping(value = "/event/list/page")
     public ApiResponse getEventByPage(@RequestParam("page")Integer page)
     {
         int pageSize = 8;

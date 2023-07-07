@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 @Service
 public class EventServiceImpl implements EventService {
@@ -144,6 +145,11 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventMapper.getAllEvents();
 
         PageInfo<Event> pageInfo = new PageInfo<>(events);
+        //处理分页逻辑
+        //如果当前要查询的页面已经超出了总数据量，返回空list
+        if (page > pageInfo.getPages() && pageInfo.getPages() != 0) {
+            pageInfo.setList(Collections.emptyList());
+        }
         return pageInfo;
 
     }

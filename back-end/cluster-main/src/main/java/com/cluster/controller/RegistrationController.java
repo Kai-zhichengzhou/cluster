@@ -49,8 +49,8 @@ public class RegistrationController {
         //存储当前用户信息
         System.out.println(newUser);
         System.out.println(userService);
-        userService.registerUser(newUser);
-        return ApiResponse.success("用户注册成功！");
+        boolean res = userService.registerUser(newUser);
+        return (res) ? ApiResponse.success("用户注册成功！") : ApiResponse.error("很抱歉，注册失败");
 
     }
 

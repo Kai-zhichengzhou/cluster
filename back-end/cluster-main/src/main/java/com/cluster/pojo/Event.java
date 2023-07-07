@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Accessors(chain = true)
 @ApiModel(value = "事件对象", description = "")
-public class Event {
+public class Event implements Serializable {
 
     @ApiModelProperty(value = "事件ID")
     private Integer id;

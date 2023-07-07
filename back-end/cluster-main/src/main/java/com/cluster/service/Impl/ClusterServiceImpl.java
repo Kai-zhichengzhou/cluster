@@ -17,12 +17,14 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.models.auth.In;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,9 @@ public class ClusterServiceImpl implements ClusterService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
 
     /**
      * 获取cluster
@@ -51,9 +56,15 @@ public class ClusterServiceImpl implements ClusterService {
      */
     @Override
     public Cluster getClusterById(Integer id) {
-        Cluster cluster = clusterMapper.getClusterById(id);
-        if (cluster == null) {
-            throw new RecordNotFoundException("你查找的id为" + id + "的cluster不存在!");
+        Cluster cluster = (Cluster) redisTemplate.opsForValue().get("cluster:"+id);
+        if(cluster == null)
+        {
+            cluster =  clusterMapper.getClusterById(id);
+            System.out.println(cluster.toString());
+            if (cluster == null) {
+                throw new RecordNotFoundException("你查找的id为" + id + "的cluster不存在!");
+            }
+            redisTemplate.opsForValue().set("cluster:" + cluster.getClusterId(), cluster);
         }
         return cluster;
 
@@ -83,7 +94,7 @@ public class ClusterServiceImpl implements ClusterService {
         //1. 设置cluster的基本信息，更新cluster所属分类的信息
         cluster.setCreatedDate(new Date());
         Integer founderID = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        cluster.setFounderID(founderID);
+        cluster.setFounderId(founderID);
         clusterMapper.insert(cluster);
         Category category = cluster.getCategory();
         Integer currCount = categoryMapper.getClusterCountByCategory(category);
@@ -130,6 +141,8 @@ public class ClusterServiceImpl implements ClusterService {
             //说明当前cluster人数满了，不可以再加入新的成员
             throw new ClusterFullException("抱歉，当前Cluster有点太火爆了，请再看看还未满员的Cluster:(");
         }
+
+        redisTemplate.delete("cluster:" + id);
         //获取当前security上下文中用户的id
         //然后更新当前用户的rank积分
         User user = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -155,6 +168,7 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     @Transactional
     public void deleteMember(Integer id) throws SQLException {
+
         Cluster cluster = clusterMapper.getClusterById(id);
         if (cluster == null) {
             throw new RecordNotFoundException("你要退出的id为" + id + "的cluster不存在!");
@@ -162,7 +176,7 @@ public class ClusterServiceImpl implements ClusterService {
         //获取当前security上下文中用户的id
         //然后更新当前用户的rank积分
         User user = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        if (user.getId().equals(cluster.getFounderID())) {
+        if (user.getId().equals(cluster.getFounderId())) {
             throw new GeneralClusterException("Cluster星主不能退出自己创建的cluster");
         }
         userMapper.addRankPoint(user.getId(), user.getRank() - 1);
@@ -171,9 +185,9 @@ public class ClusterServiceImpl implements ClusterService {
         if (success == 0) {
             throw new SQLException("很抱歉，退出cluster发生了错误，请联系客服!");
         }
+        redisTemplate.delete("cluster:" + id);
         //同时最后要记得更新cluster的人数
         clusterMapper.updateClusterMemberCount(cluster.getMemberCount() - 1, id);
-
     }
 
     /**
@@ -184,11 +198,12 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     @Transactional
     public void updateCluster(Cluster cluster) {
+        redisTemplate.delete("cluster:" + cluster.getClusterId());
         if (cluster == null) {
             throw new IllegalArgumentException("你修改的cluster信息不能为空！");
         }
+        redisTemplate.delete("cluster:" + cluster.getClusterId());
         clusterMapper.update(cluster);
-
     }
 
     /**
@@ -203,6 +218,7 @@ public class ClusterServiceImpl implements ClusterService {
         if (rowsAffected == 0) {
             throw new RecordNotFoundException("你要删除的id为" + id + "的cluster不存在!");
         }
+        redisTemplate.delete("cluster:" + id);
 
 
     }
@@ -228,11 +244,15 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     public PageInfo<Cluster> getClusterByPage(Integer page, Integer size) {
 
-        PageHelper.startPage(page, size);
-
+        PageHelper.startPage(page, size, true);
         List<Cluster> clusters = clusterMapper.getAllClusters();
-
         PageInfo<Cluster> pageInfo = new PageInfo<>(clusters);
+       //处理分页逻辑
+        //如果当前要查询的页面已经超出了总数据量，返回空list
+        if (page > pageInfo.getPages() && pageInfo.getPages() != 0) {
+            pageInfo.setList(Collections.emptyList());
+        }
+
         return pageInfo;
 
     }

@@ -5,27 +5,28 @@ import com.cluster.enums.Category;
 import com.cluster.enums.ClusterRank;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
 @ApiModel(value = "Cluster对象", description = "")
-public class Cluster {
+public class Cluster implements Serializable {
 
     @ApiModelProperty(value = "clusterId")
     private Integer clusterId;
     @ApiModelProperty(value = "cluster名称")
     private String clusterName;
+
     @ApiModelProperty(value = "创建者ID")
-    private Integer founderID;
+    private Integer founderId;
     @ApiModelProperty(value = "分类")
     private Category category;
     @ApiModelProperty(value = "当前成员数量")
@@ -47,5 +48,24 @@ public class Cluster {
     @ApiModelProperty(value = "cluster标签")
     private List<Tag> tags;
 
+//    public Integer getFounderId() {
+//        return founderId;
+//    }
+//    public void setFounderId(Integer founderId) {
+//        this.founderId = founderId;
+//    }
 
+    @Override
+    public String toString() {
+        return "Cluster{" +
+                "clusterId=" + clusterId +
+                ", clusterName='" + clusterName + '\'' +
+                ", founderId=" + founderId +
+                ", category=" + category +
+                ", memberCount=" + memberCount +
+                ", maxMembers=" + maxMembers +
+                ", createdDate=" + createdDate +
+                ", clusterRank=" + clusterRank +
+                '}';
+    }
 }

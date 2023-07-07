@@ -27,7 +27,7 @@ public interface UserService {
 
     User searchUserInfo(String username);
 
-    void registerUser(User user);
+    boolean registerUser(User user);
 
     void updateUser(Integer id, User user);
 

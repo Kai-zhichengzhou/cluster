@@ -2,6 +2,7 @@ package com.cluster.pojo;
 
 
 import com.cluster.enums.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
@@ -68,6 +69,8 @@ public class User implements Serializable , UserDetails {
     private Role role;
 
 
+
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -76,21 +79,26 @@ public class User implements Serializable , UserDetails {
 
     }
 
+
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return enabled;

@@ -168,7 +168,8 @@ public class ClusterController {
     }
 
 
-    @GetMapping(value = "/list")
+    @ApiOperation(value = "分页查找cluster")
+    @GetMapping(value = "/list/page")
     public ApiResponse getClusterByPage(@RequestParam("page")Integer page)
     {
         int pageSize = 8;
