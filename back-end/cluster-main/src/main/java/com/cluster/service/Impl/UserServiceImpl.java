@@ -31,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -66,6 +67,11 @@ public class UserServiceImpl implements UserService {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private MailLogMapper mailLogMapper;
+
+    @Value("${server.url}")
+    private String serverUrl;
+    @Value("${file.storage-location}")
+    private String location;
 
 
 
@@ -142,7 +148,7 @@ public class UserServiceImpl implements UserService {
         {
             throw new IllegalArgumentException("搜索的用户名不能为空");
         }
-        User user = userMapper.searchUserInfo(username);
+        User user = userMapper.searchUserInfoByUsername(username);
         return user;
     }
 
@@ -273,5 +279,20 @@ public class UserServiceImpl implements UserService {
        PageInfo<User> pageInfo =  paginationService.getEntityByPage(page, size, () -> userMapper.getAllUsers());
 
         return pageInfo;
+    }
+
+    @Override
+    public void uploadAvatar(Integer id, String avatar) {
+        redisTemplate.delete("user:" + id);
+        userMapper.uploadAvatar(id, avatar);
+    }
+
+    @Override
+    public String getFullAvatarUrl(String avatarPath) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serverUrl)
+                .path("/avatar/uploads/")
+                .pathSegment(avatarPath);
+
+        return builder.toUriString();
     }
 }

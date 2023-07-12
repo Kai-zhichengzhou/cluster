@@ -4,8 +4,10 @@ import com.cluster.exception.RecordNotFoundException;
 import com.cluster.pojo.ApiResponse;
 import com.cluster.pojo.Cluster;
 import com.cluster.pojo.Event;
+import com.cluster.pojo.User;
 import com.cluster.service.ClusterService;
 import com.cluster.service.EventService;
+import com.cluster.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class ClusterController {
 
     @Autowired
     private ClusterService clusterService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private EventService eventService;
 
@@ -49,6 +53,26 @@ public class ClusterController {
         {
             e.printStackTrace();
             return ApiResponse.error("很抱歉，权限验证失败!");
+        }
+    }
+
+    @ApiOperation(value = "获取当前cluster的所有成员")
+    @GetMapping("/{id}/member")
+    public ApiResponse getCLusterMember(@PathVariable Integer id)
+    {
+        try
+        {
+            clusterService.authenticateMember(id);
+            List<User> members = clusterService.getClusterMember(id);
+            members.forEach( member ->
+            {
+                member.setAvatarPath(userService.getFullAvatarUrl(member.getAvatarPath()));
+            });
+            return ApiResponse.success("获取成员成功", members);
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+            return ApiResponse.error("很抱歉，获取成员失败");
         }
     }
 
@@ -174,7 +198,6 @@ public class ClusterController {
     {
         int pageSize = 8;
 
-        int offset = (page - 1) * pageSize;
 
         List<Cluster> clusters = clusterService.getClusterByPage(page, pageSize).getList();
 

@@ -149,7 +149,9 @@ public class ClusterServiceImpl implements ClusterService {
         redisTemplate.delete("cluster:" + id);
         //获取当前security上下文中用户的id
         //然后更新当前用户的rank积分
-        User user = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        User user = userMapper.getUserById(( (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+        System.out.println("---" + user);
+        System.out.println(user.getRank());
         userMapper.addRankPoint(user.getId(), user.getRank() + 2);
         //更新user和cluster的中间表，来表示用户成功加入了cluster
         Integer success = clusterMapper.joinMember(id, user.getId());
@@ -240,7 +242,7 @@ public class ClusterServiceImpl implements ClusterService {
     public List<Cluster> viewMyClusters() {
         Integer uid = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         List<Integer> cids = clusterMapper.findClusterIdByUser(uid);
-        List<Cluster> myClusters = (cids.isEmpty()) ? null : clusterMapper.viewMyClusters(cids);
+        List<Cluster> myClusters = (cids.isEmpty()) ? null : clusterMapper.searchClusters(cids);
         return myClusters;
 
     }
@@ -251,6 +253,11 @@ public class ClusterServiceImpl implements ClusterService {
        PageInfo<Cluster> pageInfo = paginationService.getEntityByPage(page, size, ()-> clusterMapper.getAllClusters());
        return pageInfo;
 
+    }
+
+    @Override
+    public List<User> getClusterMember(Integer id) {
+       return  clusterMapper.getClusterMember(id);
     }
 }
 

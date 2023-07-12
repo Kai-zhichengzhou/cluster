@@ -6,13 +6,17 @@ import com.cluster.pojo.Event;
 import com.cluster.pojo.User;
 import com.cluster.service.ClusterService;
 import com.cluster.service.EventService;
+import com.cluster.service.FileStorageService;
 import com.cluster.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,28 +31,45 @@ public class UserController {
     @Autowired
     private EventService eventService;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    @Value("${server.url}")
+    private String serverUrl;
+
+
     @ApiOperation(value = "返回所有用户")
     @GetMapping("/")
     public List<User> getAllUsers()
     {
-        return userService.getAllUsers();
+
+        List<User> users =  userService.getAllUsers();
+        users.forEach( user ->{
+            user.setAvatarPath(userService.getFullAvatarUrl(user.getAvatarPath()));
+        });
+        return users;
     }
 
-    @ApiOperation(value = "搜索用户")
-    @GetMapping("/{name}")
-    public ApiResponse searchUser(@PathVariable String name)
+
+    @ApiOperation(value = "上传头像")
+    @PostMapping("/upload")
+    public ApiResponse uploadAvatar(@RequestParam("file") MultipartFile file)
     {
         try
         {
-            User userInfo = userService.searchUserInfo(name);
-            return (userInfo == null) ? ApiResponse.error("当前没有该用户") :ApiResponse.success("搜索成功", userInfo);
-        }catch(IllegalArgumentException e)
+            //存储文件并获取新的文件名
+            String fileName =fileStorageService.storeFile(file);
+            //获取当前用户
+            Integer userId = ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+            userService.uploadAvatar(userId, fileName);
+            return ApiResponse.success("头像更新成功");
+        }catch(Exception e)
         {
             e.printStackTrace();
-            //TODO: 这里可以直接在前端做非空处理，后期可以删除
-            return ApiResponse.error("当前输入的用户名为空");
+            return ApiResponse.error("头像上传失败");
         }
     }
+
 
     @ApiOperation(value = "更改用户自己的个人文档")
     @PutMapping("/updateProfile")
@@ -75,7 +96,9 @@ public class UserController {
     @GetMapping("/myInfo")
     public ApiResponse viewMyProfile()
     {
-        return ApiResponse.success("已显示个人信息",userService.getCurrentUser());
+        User user = userService.getCurrentUser();
+        user.setAvatarPath(userService.getFullAvatarUrl(user.getAvatarPath()));
+        return ApiResponse.success("已显示个人信息",user);
     }
 
     @ApiOperation(value = "查看已加入的cluster")
@@ -102,6 +125,9 @@ public class UserController {
         int offset = (page - 1) * pageSize;
 
         List<User> users= userService.getUserByPage(page, pageSize).getList();
+        users.forEach( user ->{
+            user.setAvatarPath(userService.getFullAvatarUrl(user.getAvatarPath()));
+        });
 
         return ApiResponse.success("获取当前页的clusters成功", users);
 

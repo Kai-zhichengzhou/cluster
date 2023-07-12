@@ -40,4 +40,8 @@ public interface UserService {
     ApiResponse login(String username, String password, String code, HttpServletRequest request);
 
     PageInfo<User> getUserByPage(Integer page, Integer size);
+
+    void uploadAvatar(Integer id, String avatar);
+
+    String getFullAvatarUrl(String avatarPath);
 }

@@ -1,6 +1,8 @@
 package com.cluster.mapper;
 
+import com.cluster.enums.Category;
 import com.cluster.pojo.Cluster;
+import com.cluster.pojo.User;
 import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
@@ -84,5 +86,25 @@ public interface ClusterMapper {
      * @return
      */
     List<Integer> findClusterIdByUser(Integer uid);
-    List<Cluster> viewMyClusters(List<Integer> cids);
+
+
+    /**
+     * 根据一系列cid搜索（复用的方法，用于搜索用户自己的cluster以及搜索功能
+     * @param cids
+     * @return
+     */
+    List<Cluster> searchClusters(List<Integer> cids);
+
+    /**
+     * 搜索查询
+     * @param clusterName
+     * @return
+     */
+    List<Cluster> searchClusterByName(String clusterName);
+
+    List<Integer> findClusterIdByTag(Integer tid);
+
+    List<Cluster> searchClustersByCategory(Category category);
+
+    List<User> getClusterMember(Integer id);
 }

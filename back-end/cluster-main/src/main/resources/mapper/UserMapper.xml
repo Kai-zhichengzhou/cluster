@@ -59,6 +59,14 @@
             where u.`name` like CONCAT('%' , #{name} ,'%')
     </select>
 
+    <select id="searchUserInfoByUsername" resultMap="SimpleProfileResultMap">
+        select u.id, u.`name`,u.gender, u.signature,u.enabled, u.`rank`, u.avatarpath,
+               roleTable.`name` as role_name, roleTable.nameZh from users u
+                                                                        left join user_role r on u.id = r.uid
+                                                                        left join roles roleTable on r.rid = roleTable.id
+        where u.username = #{username}
+    </select>
+
     <select id="getUserByUsername" resultType="User">
         select id, username, `name`, password, email, phone, datejoined, gender, signature,`rank`,avatarpath from users where username =#{username}
     </select>
@@ -69,13 +77,17 @@
 
     <insert id="registerUser" useGeneratedKeys="true" keyProperty="id">
         insert INTO users VALUES(null, #{username}, #{password}, #{enabled}, #{name}, #{email},
-                                #{phone}, #{dateJoined}, #{gender}, #{signature}, #{rank}, #{avatarPath})
+                                #{phone}, #{dateJoined}, #{gender}, #{signature}, 0, #{avatarPath})
     </insert>
 
     <update id="updateUser">
         update users set `name` = #{name}, phone = #{phone},
                         gender = #{gender}, signature = #{signature}, avatarpath = #{avatarPath}
                         where id = #{id}
+    </update>
+
+    <update id="uploadAvatar">
+        update users set avatarPath= #{avatar} where id = #{id}
     </update>
 
     <update id="addRankPoint">
@@ -99,6 +111,7 @@
     <insert id="insertUserRole">
         Insert INTO user_role (uid, rid) values(#{uid}, #{rid})
     </insert>
+
 
 
 

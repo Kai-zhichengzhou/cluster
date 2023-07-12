@@ -10,6 +10,11 @@
         select * from cluster
     </select>
 
+    <select id="searchClusterByName" resultType="Cluster">
+        select * from cluster where clusterName like CONCAT('%', #{clusterName}, '%')
+    </select>
+
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="clusterId">
         insert into cluster values(null, #{clusterName}, #{founderId},
                                    #{category}, 1,
@@ -51,10 +56,25 @@
     <select id="findClusterIdByUser" resultType="java.lang.Integer">
         select cid from cluster_user where uid = #{uid}
     </select>
-    <select id="viewMyClusters" resultType="Cluster">
+    <select id="searchClusters" resultType="Cluster">
         select * from cluster where clusterId in
         <foreach item="clusterId" collection="list" open="(" separator="," close=")">
             #{clusterId}
         </foreach>
+    </select>
+
+    <select id="findClusterIdByTag" resultType="java.lang.Integer">
+        select cid from cluster_tag where tid = #{tid}
+    </select>
+
+    <select id="searchClustersByCategory" resultType="Cluster">
+        select * from cluster where category = #{category}
+    </select>
+    
+    <select id="getClusterMember" resultType="User">
+        select u.* from users u join
+            cluster_user cu on u.id = cu.uid
+                where cu.cid = #{id}
+
     </select>
 </mapper>

@@ -16,7 +16,7 @@ public class PaginationServiceImpl implements PaginationService {
 
     public <T>  PageInfo<T> getEntityByPage(Integer page, Integer size, Supplier<List<T>> supplier)
     {
-        PageHelper.startPage(page);
+        PageHelper.startPage(page, size);
 
         List<T> entities = supplier.get();
 
