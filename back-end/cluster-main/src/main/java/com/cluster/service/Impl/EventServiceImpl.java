@@ -8,6 +8,7 @@ import com.cluster.pojo.Event;
 import com.cluster.pojo.User;
 import com.cluster.service.ClusterService;
 import com.cluster.service.EventService;
+import com.cluster.service.PaginationService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.models.auth.In;
@@ -29,6 +30,9 @@ public class EventServiceImpl implements EventService {
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private PaginationService paginationService;
 
 
 
@@ -140,16 +144,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public PageInfo<Event> getEventByPage(Integer page,  Integer size) {
 
-        PageHelper.startPage(page, size);
-
-        List<Event> events = eventMapper.getAllEvents();
-
-        PageInfo<Event> pageInfo = new PageInfo<>(events);
-        //处理分页逻辑
-        //如果当前要查询的页面已经超出了总数据量，返回空list
-        if (page > pageInfo.getPages() && pageInfo.getPages() != 0) {
-            pageInfo.setList(Collections.emptyList());
-        }
+        PageInfo<Event> pageInfo = paginationService.getEntityByPage(page, size, ()-> eventMapper.getAllEvents());
         return pageInfo;
 
     }

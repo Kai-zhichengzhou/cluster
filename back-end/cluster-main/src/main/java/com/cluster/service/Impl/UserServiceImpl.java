@@ -9,6 +9,7 @@ import com.cluster.pojo.ApiResponse;
 import com.cluster.pojo.MailLog;
 import com.cluster.pojo.Role;
 import com.cluster.pojo.User;
+import com.cluster.service.PaginationService;
 import com.cluster.service.UserService;
 import com.cluster.utils.MailConstants;
 import com.github.pagehelper.PageHelper;
@@ -40,6 +41,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    PaginationService paginationService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -266,17 +270,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageInfo<User> getUserByPage(Integer page, Integer size) {
 
-        PageHelper.startPage(page, size);
-
-        List<User> users = userMapper.getAllUsers();
-
-        PageInfo<User> pageInfo = new PageInfo<>(users);
-
-        //处理分页逻辑
-        //如果当前要查询的页面已经超出了总数据量，返回空list
-        if (page > pageInfo.getPages() && pageInfo.getPages() != 0) {
-            pageInfo.setList(Collections.emptyList());
-        }
+       PageInfo<User> pageInfo =  paginationService.getEntityByPage(page, size, () -> userMapper.getAllUsers());
 
         return pageInfo;
     }

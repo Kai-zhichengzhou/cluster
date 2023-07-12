@@ -67,7 +67,7 @@
         select `rank` from users where id = #{id}
     </select>
 
-    <insert id="registerUser">
+    <insert id="registerUser" useGeneratedKeys="true" keyProperty="id">
         insert INTO users VALUES(null, #{username}, #{password}, #{enabled}, #{name}, #{email},
                                 #{phone}, #{dateJoined}, #{gender}, #{signature}, #{rank}, #{avatarPath})
     </insert>

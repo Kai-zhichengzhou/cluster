@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>注册欢迎邮件</title>
+</head>
+<body>
+欢迎<span th:text="${name}"></span>加入Cluster宇宙，你的注册信息如下：
+<table border="1">
+    <tr>
+        <td>用户名</td>
+        <td th:text="${username}"></td>
+    </tr>
+    <tr>
+        <td>昵称</td>
+        <td th:text="${name}"></td>
+    </tr>
+    <tr>
+        <td>个性签名</td>
+        <td th:text="${signature}"></td>
+    </tr>
+    <tr>
+        <td>会员级别</td>
+        <td th:text="${role}"></td>
+    </tr>
+</table>
+<p>
+    欢迎加入Cluster的宇宙。在这里，你可以随心所欲的加入任何你感兴趣的cluster，结交新的朋友，分享你的观点，并且随时都可以组织
+    或加入你们组织的活动和派对。 在这里，没有社交圈的壁垒，只有这个世界上无数个与你相似的小小星尘。
+</p>
+</body>
+</html>

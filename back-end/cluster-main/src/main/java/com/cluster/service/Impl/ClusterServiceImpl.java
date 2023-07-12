@@ -12,6 +12,7 @@ import com.cluster.pojo.Cluster;
 import com.cluster.pojo.Tag;
 import com.cluster.pojo.User;
 import com.cluster.service.ClusterService;
+import com.cluster.service.PaginationService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.models.auth.In;
@@ -37,6 +38,9 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    private PaginationService paginationService;
 
     @Autowired
     private TagMapper tagMapper;
@@ -244,16 +248,8 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     public PageInfo<Cluster> getClusterByPage(Integer page, Integer size) {
 
-        PageHelper.startPage(page, size, true);
-        List<Cluster> clusters = clusterMapper.getAllClusters();
-        PageInfo<Cluster> pageInfo = new PageInfo<>(clusters);
-       //处理分页逻辑
-        //如果当前要查询的页面已经超出了总数据量，返回空list
-        if (page > pageInfo.getPages() && pageInfo.getPages() != 0) {
-            pageInfo.setList(Collections.emptyList());
-        }
-
-        return pageInfo;
+       PageInfo<Cluster> pageInfo = paginationService.getEntityByPage(page, size, ()-> clusterMapper.getAllClusters());
+       return pageInfo;
 
     }
 }
