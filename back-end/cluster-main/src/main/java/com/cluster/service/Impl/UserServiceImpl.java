@@ -289,7 +289,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getFullAvatarUrl(String avatarPath) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serverUrl)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl( serverUrl)
                 .path("/avatar/uploads/")
                 .pathSegment(avatarPath);
 

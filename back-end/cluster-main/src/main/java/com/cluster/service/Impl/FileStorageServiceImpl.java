@@ -19,13 +19,8 @@ import java.util.UUID;
 
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
-    private final Path rootLocation; // 定义存储文件的根路径
+    private  Path rootLocation; // 定义存储文件的根路径
 
-    @Autowired
-    public FileStorageServiceImpl(@Value("${file.storage-location}") String uploadDir) {
-        this.rootLocation = Paths.get(uploadDir)
-                .toAbsolutePath().normalize();
-    }
 
     /**
      * 存储文件到系统
@@ -33,8 +28,9 @@ public class FileStorageServiceImpl implements FileStorageService {
      * @return 文件名
      */
     @Override
-    public String storeFile(MultipartFile file) {
+    public String storeFile(MultipartFile file, String uploadDir) {
         try {
+            rootLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
             // 检查文件是否为空
             System.out.println(file);
             if (file.isEmpty()) {
@@ -67,8 +63,9 @@ public class FileStorageServiceImpl implements FileStorageService {
      * @return 路径
      */
     @Override
-    public Path loadFile(String filename) {
+    public Path loadFile(String filename, String uploadDir) {
         // 根据文件名解析文件路径
+        rootLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
         return rootLocation.resolve(filename);
     }
 }

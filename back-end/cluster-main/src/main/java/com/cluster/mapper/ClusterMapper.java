@@ -107,4 +107,6 @@ public interface ClusterMapper {
     List<Cluster> searchClustersByCategory(Category category);
 
     List<User> getClusterMember(Integer id);
+
+    void uploadCover(@Param("id") Integer id, @Param("coverPath") String cover);
 }

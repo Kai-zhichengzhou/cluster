@@ -22,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
@@ -36,6 +37,9 @@ public class UserController {
 
     @Value("${server.url}")
     private String serverUrl;
+
+    @Value("${file.storage-location}")
+    private String location;
 
 
     @ApiOperation(value = "返回所有用户")
@@ -58,7 +62,7 @@ public class UserController {
         try
         {
             //存储文件并获取新的文件名
-            String fileName =fileStorageService.storeFile(file);
+            String fileName =fileStorageService.storeFile(file, location);
             //获取当前用户
             Integer userId = ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
             userService.uploadAvatar(userId, fileName);

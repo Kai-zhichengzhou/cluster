@@ -21,6 +21,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/search")
+@CrossOrigin(origins = "*")
 public class SearchController {
 
     public static final int pageSize = 8;

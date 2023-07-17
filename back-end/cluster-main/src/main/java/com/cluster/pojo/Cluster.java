@@ -37,6 +37,8 @@ public class Cluster implements Serializable {
     private Date createdDate;
     @ApiModelProperty(value = "cluster级别")
     private ClusterRank clusterRank;
+    @ApiModelProperty(value = "cluster封面")
+    private String coverPath;
 
     //其余一对多，多对多关系
     //一对多

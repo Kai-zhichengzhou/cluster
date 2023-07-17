@@ -6,8 +6,8 @@ import java.nio.file.Path;
 
 public interface FileStorageService {
 
-    String storeFile(MultipartFile file);
+    String storeFile(MultipartFile file, String uploadDir);
 
 
-    Path loadFile(String filename);
+    Path loadFile(String filename, String uploadDir);
 }

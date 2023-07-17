@@ -60,4 +60,8 @@ public interface ClusterService {
 
 
     List<User> getClusterMember(Integer id);
+
+    String getFullCoverUrl(String coverName);
+
+    void uploadCover(Integer id, String cover);
 }

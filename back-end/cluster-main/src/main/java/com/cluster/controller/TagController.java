@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("tag")
+@CrossOrigin(origins = "*")
 public class TagController {
 
     @Autowired

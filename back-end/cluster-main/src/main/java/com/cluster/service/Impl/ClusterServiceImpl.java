@@ -18,11 +18,13 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.models.auth.In;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -50,6 +52,12 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Value("${server.url}")
+    String serverUrl;
+
+    @Value("${cluster.cover.path}")
+    private String location;
 
 
     /**
@@ -258,6 +266,22 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     public List<User> getClusterMember(Integer id) {
        return  clusterMapper.getClusterMember(id);
+    }
+
+    @Override
+    public void uploadCover(Integer id, String cover) {
+        redisTemplate.delete("cluster:" + id);
+        clusterMapper.uploadCover(id, cover);
+    }
+
+
+    @Override
+    public String getFullCoverUrl(String coverPath) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(serverUrl)
+                .path("/cover/uploads/")
+                .pathSegment(coverPath);
+
+        return builder.toUriString();
     }
 }
 

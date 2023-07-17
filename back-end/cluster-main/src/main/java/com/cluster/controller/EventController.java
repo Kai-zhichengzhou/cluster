@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class EventController {
 
     @Autowired

@@ -7,18 +7,23 @@ import com.cluster.pojo.Event;
 import com.cluster.pojo.User;
 import com.cluster.service.ClusterService;
 import com.cluster.service.EventService;
+import com.cluster.service.FileStorageService;
 import com.cluster.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/cluster")
+@CrossOrigin(origins = "*")
 public class ClusterController {
 
 
@@ -28,12 +33,21 @@ public class ClusterController {
     private UserService userService;
     @Autowired
     private EventService eventService;
+    @Autowired
+    private FileStorageService fileStorageService;
+    @Value("${cluster.cover.path}")
+    private String location;
 
     @ApiOperation(value = "获取所有Cluster")
     @GetMapping("/list")
     public List<Cluster> getAllCluster()
     {
-        return clusterService.getAllClusters();
+        List<Cluster> clusters = clusterService.getAllClusters();
+        clusters.forEach( cluster -> {
+            cluster.setCoverPath(clusterService.getFullCoverUrl(cluster.getCoverPath()));
+        });
+        return clusters;
+
 
     }
 
@@ -44,6 +58,7 @@ public class ClusterController {
         {
             clusterService.authenticateMember(id);
             Cluster cluster = clusterService.getClusterById(id);
+            cluster.setCoverPath(clusterService.getFullCoverUrl(cluster.getCoverPath()));
             return ApiResponse.success("查找cluster成功", cluster);
         }catch(RecordNotFoundException exception)
         {
@@ -200,9 +215,37 @@ public class ClusterController {
 
 
         List<Cluster> clusters = clusterService.getClusterByPage(page, pageSize).getList();
+        clusters.forEach( cluster -> {
+            cluster.setCoverPath(clusterService.getFullCoverUrl(cluster.getCoverPath()));
+        });
 
         return ApiResponse.success("获取当前页的clusters成功", clusters);
 
+    }
+
+    @ApiOperation(value = "上传头像")
+    @PostMapping("/{clusterId}/upload")
+    public ApiResponse uploadCover(@PathVariable Integer clusterId, @RequestParam("file") MultipartFile file)
+    {
+        try
+        {
+            Integer userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+            Cluster cluster = clusterService.getClusterById(clusterId);
+            if(cluster.getFounderId() == userId)
+            {
+
+                //存储文件并获取新的文件名
+                String fileName =fileStorageService.storeFile(file, location);
+                clusterService.uploadCover(clusterId, fileName);
+                return ApiResponse.success("上传Cluster封面成功!");
+            }
+            return ApiResponse.error("你没有权限修改该Cluster的封面");
+
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+            return ApiResponse.error("封面上传失败");
+        }
     }
 
 

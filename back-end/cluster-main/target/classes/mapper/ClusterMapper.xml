@@ -77,4 +77,7 @@
                 where cu.cid = #{id}
 
     </select>
+    <update id="uploadCover">
+        update cluster set coverPath = #{coverPath} where clusterId = #{id}
+    </update>
 </mapper>
