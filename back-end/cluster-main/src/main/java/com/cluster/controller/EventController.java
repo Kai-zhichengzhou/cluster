@@ -65,7 +65,9 @@ public class EventController {
         try
         {
             clusterService.authenticateMember(cid);
+            System.out.println("error!!");
             eventService.createEvent(cid, event);
+            System.out.println("created");
             return ApiResponse.success("创建活动事件成功!");
         }catch(Exception e)
         {

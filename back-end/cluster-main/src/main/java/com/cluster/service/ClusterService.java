@@ -2,6 +2,7 @@ package com.cluster.service;
 
 import com.cluster.pojo.Cluster;
 import com.cluster.pojo.User;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 
 import java.sql.SQLException;
@@ -54,7 +55,7 @@ public interface ClusterService {
     void authenticateMember(Integer cid);
 
 
-    List<Cluster> viewMyClusters();
+    List<Cluster> viewMyClusters(Integer page, Integer pageSize);
 
     PageInfo<Cluster> getClusterByPage(Integer page, Integer size);
 

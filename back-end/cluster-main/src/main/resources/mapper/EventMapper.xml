@@ -17,7 +17,7 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into event values(null, #{clusterId}, #{name}, #{description},
-                                 #{beginDate}, #{endDate}, #{finished}, 1)
+                                 #{beginDate}, #{endDate}, false, 1)
     </insert>
 
     <update id="update">

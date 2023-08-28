@@ -13,6 +13,7 @@ import com.cluster.pojo.Tag;
 import com.cluster.pojo.User;
 import com.cluster.service.ClusterService;
 import com.cluster.service.PaginationService;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.models.auth.In;
@@ -110,6 +111,7 @@ public class ClusterServiceImpl implements ClusterService {
         clusterMapper.insert(cluster);
         Category category = cluster.getCategory();
         Integer currCount = categoryMapper.getClusterCountByCategory(category);
+        //要使用乐观锁，通过版本号来更新
         categoryMapper.updateCount(category, currCount + 1);
         //2. 通过founderID来更新cluster_user的中间表
         clusterMapper.joinMember(cluster.getClusterId(), founderID);
@@ -158,6 +160,9 @@ public class ClusterServiceImpl implements ClusterService {
         //获取当前security上下文中用户的id
         //然后更新当前用户的rank积分
         User user = userMapper.getUserById(( (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+        //不能重复加入
+        Map<String, Object> res = clusterMapper.authenticateMember(id,user.getId());
+        if(res != null) return;
         System.out.println("---" + user);
         System.out.println(user.getRank());
         userMapper.addRankPoint(user.getId(), user.getRank() + 2);
@@ -193,6 +198,8 @@ public class ClusterServiceImpl implements ClusterService {
         if (user.getId().equals(cluster.getFounderId())) {
             throw new GeneralClusterException("Cluster星主不能退出自己创建的cluster");
         }
+        Map<String, Object> res = clusterMapper.authenticateMember(id,user.getId());
+        if(res == null) return;
         userMapper.addRankPoint(user.getId(), user.getRank() - 1);
         //更新user和cluster的中间表，来表示用户成功加入了cluster
         Integer success = clusterMapper.deleteMember(id, user.getId());
@@ -240,26 +247,38 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     public void authenticateMember(Integer cid) {
         Integer uid = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        System.out.println(uid);
         Map<String, Object> res = clusterMapper.authenticateMember(cid, uid);
         if (res == null || res.isEmpty()) {
+            System.out.println("it runs here");
             throw new AccessDeniedException("很抱歉，你没有进入该cluster的权限!");
+
         }
     }
 
     @Override
-    public List<Cluster> viewMyClusters() {
+    public List<Cluster> viewMyClusters(Integer page, Integer pageSize) {
         Integer uid = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         List<Integer> cids = clusterMapper.findClusterIdByUser(uid);
-        List<Cluster> myClusters = (cids.isEmpty()) ? null : clusterMapper.searchClusters(cids);
-        return myClusters;
+//        List<Cluster> myClusters = (cids.isEmpty()) ? null : clusterMapper.searchClusters(cids);
+        PageInfo<Cluster> pageInfo = paginationService.getEntityByPage(page, pageSize, ()->clusterMapper.searchClusters(cids));
+        return pageInfo.getList();
 
     }
 
     @Override
-    public PageInfo<Cluster> getClusterByPage(Integer page, Integer size) {
+    public PageInfo<Cluster> getClusterByPage(Integer page, Integer pageSize) {
 
-       PageInfo<Cluster> pageInfo = paginationService.getEntityByPage(page, size, ()-> clusterMapper.getAllClusters());
-       return pageInfo;
+       PageInfo<Cluster> pageInfo = paginationService.getEntityByPage(page, pageSize, ()-> clusterMapper.getAllClusters());
+//        System.out.println("page:" + page + " pageSize:" + pageSize);
+//        PageHelper.startPage(page, pageSize);
+//        List<Cluster> clusters = clusterMapper.getAllClusters();
+//        System.out.println(clusters.size());
+//        PageInfo<Cluster> pageInfo = new PageInfo<>(clusters);
+//        System.out.println(pageInfo.getList().size());
+//        Page<Cluster> pageInfo = PageHelper.startPage(page, pageSize).doSelectPage(() -> clusterMapper.getAllClusters());
+        return pageInfo;
+
 
     }
 

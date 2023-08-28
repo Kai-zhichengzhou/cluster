@@ -56,7 +56,7 @@ public class ClusterController {
     {
         try
         {
-            clusterService.authenticateMember(id);
+//            clusterService.authenticateMember(id);
             Cluster cluster = clusterService.getClusterById(id);
             cluster.setCoverPath(clusterService.getFullCoverUrl(cluster.getCoverPath()));
             return ApiResponse.success("查找cluster成功", cluster);
@@ -77,7 +77,7 @@ public class ClusterController {
     {
         try
         {
-            clusterService.authenticateMember(id);
+//            clusterService.authenticateMember(id);
             List<User> members = clusterService.getClusterMember(id);
             members.forEach( member ->
             {
@@ -196,7 +196,7 @@ public class ClusterController {
     {
         try
         {
-            clusterService.authenticateMember(id);
+//            clusterService.authenticateMember(id);
             List<Event> events = eventService.getClusterEvents(id);
             return ApiResponse.success("查找Event成功", events);
         }catch(Exception e)
@@ -209,12 +209,11 @@ public class ClusterController {
 
     @ApiOperation(value = "分页查找cluster")
     @GetMapping(value = "/list/page")
-    public ApiResponse getClusterByPage(@RequestParam("page")Integer page)
+    public ApiResponse getClusterByPage(@RequestParam("page")Integer page,@RequestParam("pageSize")Integer pageSize)
     {
-        int pageSize = 8;
-
-
+        System.out.println("page Size:" + pageSize);
         List<Cluster> clusters = clusterService.getClusterByPage(page, pageSize).getList();
+        System.out.println(clusters.size());
         clusters.forEach( cluster -> {
             cluster.setCoverPath(clusterService.getFullCoverUrl(cluster.getCoverPath()));
         });

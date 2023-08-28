@@ -48,7 +48,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 //允许对/login, /logout不需要任何访问限制
-                .antMatchers("/registration/signup", "/login").permitAll()
+                .antMatchers("/registration/signup",
+                        "/login", "/error").permitAll()
 //                .antMatchers("/admin/**").hasRole("admin")
 //                .anyRequest().hasRole("user")
                 .anyRequest().authenticated()
@@ -69,6 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     {
         //放行静态资源
         web.ignoring().antMatchers(
+                "/chat/**",
                 "/login",
                 "/logout",
                 "/css/**",
@@ -79,7 +81,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/webjars/**",
                 "/swagger-resources/**",
                 "/v2/api-docs/**",
-                "/captcha");
+                "/captcha",
+                "/avatar/uploads/**",
+                "/cover/uploads/**");
 
     }
     @Override

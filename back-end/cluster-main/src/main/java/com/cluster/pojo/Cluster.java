@@ -40,6 +40,8 @@ public class Cluster implements Serializable {
     @ApiModelProperty(value = "cluster封面")
     private String coverPath;
 
+    private String description;
+
     //其余一对多，多对多关系
     //一对多
     @ApiModelProperty(value = "cluster发布事件")

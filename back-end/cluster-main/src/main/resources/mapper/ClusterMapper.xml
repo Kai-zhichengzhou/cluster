@@ -19,12 +19,13 @@
         insert into cluster values(null, #{clusterName}, #{founderId},
                                    #{category}, 1,
                                    #{maxMembers},#{createdDate},
-                                   #{clusterRank})
+                                   #{clusterRank},  #{description})
     </insert>
 
     <update id="update">
         update cluster set clustername = #{clusterName},
                            memberCount = #{memberCount},
+                           description = #{description},
                            maxMembers = #{maxMembers},
                            clusterRank = #{clusterRank} where clusterId = #{clusterId}
     </update>

@@ -82,7 +82,7 @@
 
     <update id="updateUser">
         update users set `name` = #{name}, phone = #{phone},
-                        gender = #{gender}, signature = #{signature}, avatarpath = #{avatarPath}
+                        gender = #{gender}, signature = #{signature}
                         where id = #{id}
     </update>
 

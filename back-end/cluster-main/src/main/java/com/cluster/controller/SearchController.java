@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/search")
 @CrossOrigin(origins = "*")
 public class SearchController {
-
+//
     public static final int pageSize = 8;
 
     @Autowired
@@ -44,8 +44,9 @@ public class SearchController {
     {
 
         System.out.println(name);
-//        List<User> users = searchService.searchUsersByName(name,page, pageSize).getList();
-        List<User> users = searchService.testSearch(name);
+        List<User> users = searchService.searchUsersByName(name,page, pageSize).getList();
+        System.out.println(users.size());
+//        List<User> users = searchService.testSearch(name);
         System.out.println(users.size());
 
         return ApiResponse.success("获取你搜索的用户当前页成功", users);

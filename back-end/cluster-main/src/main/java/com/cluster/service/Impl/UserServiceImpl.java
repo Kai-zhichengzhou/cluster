@@ -78,6 +78,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiResponse login(String username, String password, String code, HttpServletRequest request) {
 
+
+        System.out.println(username);
+        System.out.println(password);
+        System.out.println(code);
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
 
@@ -85,11 +90,12 @@ public class UserServiceImpl implements UserService {
         {
             return ApiResponse.error("用户名或密码输入错误，请重新尝试!");
         }
-        String captcha = (String) request.getSession().getAttribute("captcha");
-        if(StringUtils.isEmpty(code) || !captcha.equals(code))
-        {
-            return ApiResponse.error("验证码填写错误");
-        }
+//        String captcha = (String) request.getSession().getAttribute("captcha");
+//        System.out.println("c:" + captcha);
+//        if(StringUtils.isEmpty(code) || !captcha.equals(code))
+//        {
+//            return ApiResponse.error("验证码填写错误");
+//        }
 
         //登陆成功后更新security登陆用户对象
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -289,10 +295,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getFullAvatarUrl(String avatarPath) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl( serverUrl)
-                .path("/avatar/uploads/")
-                .pathSegment(avatarPath);
+        StringBuilder sb = new StringBuilder();
+        sb.append("/avatar/uploads/");
+        sb.append(avatarPath);
+//        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl( serverUrl)
+//                .path("/avatar/uploads/")
+//                .pathSegment(avatarPath);
 
-        return builder.toUriString();
+
+        return sb.toString();
     }
 }

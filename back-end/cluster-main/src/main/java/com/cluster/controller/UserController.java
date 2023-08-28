@@ -107,9 +107,9 @@ public class UserController {
 
     @ApiOperation(value = "查看已加入的cluster")
     @GetMapping("/clusters")
-    public ApiResponse viewMyClusters()
+    public ApiResponse viewMyClusters(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize)
     {
-        return ApiResponse.success("已获取你加入的所有cluster", clusterService.viewMyClusters());
+        return ApiResponse.success("已获取你加入的所有cluster", clusterService.viewMyClusters(page, pageSize));
     }
 
     @ApiOperation(value = "查看自己加入过的事件")

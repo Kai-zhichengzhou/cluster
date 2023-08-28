@@ -86,6 +86,7 @@ public class EventServiceImpl implements EventService {
         //如果成功插入了event的基本信息，开始更新中间表
         Integer creatorId = ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         eventMapper.addEventMember(event.getId(), creatorId);
+        System.out.println("success created");
 
     }
     /**

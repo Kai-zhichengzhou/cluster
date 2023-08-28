@@ -39,6 +39,8 @@ public class SearchServiceImpl implements SearchService {
     public PageInfo<User> searchUsersByName(String name, Integer page, Integer pageSize) {
 
         PageInfo<User> pageInfo = paginationService.getEntityByPage(page, pageSize, () -> userMapper.searchUserInfo(name));
+        System.out.println(pageSize);
+
         return pageInfo;
 
     }
