@@ -121,6 +121,7 @@ public class ClusterServiceImpl implements ClusterService {
         //分步：先查询tag是否存在，如果存在则获取tag的id，用来之后更新cluster_tag的中间表
         //如果tag不存在，则通过tagmapper创建一个新的标签，获取新tag的id，然后更新中间表
         //cluster会有多个标签，所以要通过loop list来依次操作
+
         for (Tag currTag : cluster.getTags()) {
             Tag tag = tagMapper.getTagByName(currTag.getTagName());
             Integer tagId = null;
